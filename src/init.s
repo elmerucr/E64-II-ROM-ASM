@@ -1,8 +1,4 @@
-	SECTION BSS
-
-aa::	DS.B	1
-bb::	DS.W	1
-
+	INCLUDE	"definitions.inc"
 
 	SECTION	DATA
 
@@ -19,6 +15,11 @@ init_kernel
 	JSR	relocate_sections
 	JSR	update_vector_table
 
+	MOVE.B	#$10,VICV_HOR_BORDER_SIZE
+	MOVE.W	#C64_BLUE,VICV_HOR_BORDER_COLOR
+
+	JSR	sids_reset
+
 .1	BRA	.1
 
 relocate_sections
@@ -29,16 +30,16 @@ relocate_sections
 	PEA	_DATA_START	; push source address
 	PEA	_RAM_START	; push destination address
 	JSR	memcpy
-	LEA	($c,SP),SP	; cleanup stack
+	LEA	($c,SP),SP	; clean up stack
 
 	; zero bss section
 	MOVE.L	#_BSS_END,D0
 	SUB.L	#_BSS_START,D0
 	MOVE.L	D0,-(SP)	; push number of bytes
-	MOVE.B	#$be,-(SP)	; push value
-	PEA	_BSS_START
+	MOVE.B	#$00,-(SP)	; push the clear value
+	PEA	_BSS_START	; push address
 	JSR	memset
-	LEA	($a,SP),SP
+	LEA	($a,SP),SP	; clean up stack
 
 	RTS
 

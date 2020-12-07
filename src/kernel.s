@@ -1,5 +1,9 @@
 	SECTION	TEXT
 
+malloc::
+	RTS
+
+
 memcpy::
 	MOVEA.L	($4,SP),A1	; dest
 	MOVEA.L	($8,SP),A0	; src
@@ -20,10 +24,11 @@ memset::
 	MOVEA.L	($4,SP),A0	; destination
 	MOVE.B	($8,SP),D0	; value
 	MOVE.L	($a,SP),D1	; no of bytes
+	BEQ	.2		; if no of bytes=0 then return
 .1	MOVE.B	D0,(A0)+
 	SUBQ	#$1,D1
 	BNE	.1
-	RTS
+.2	RTS
 
 ;u8 *memset(u8 *dest, u8 val, size_t count)
 ;{
