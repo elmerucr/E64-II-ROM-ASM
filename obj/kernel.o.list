@@ -1,0 +1,77 @@
+F00:0001       	GLOBAL	memcpy
+F00:0002       	GLOBAL	memset
+F00:0003       
+F00:0004       
+F00:0005       	SECTION	TEXT
+F00:0006       
+F00:0007       memcpy
+F00:0008       	MOVEA.L	($4,SP),A1	; dest
+               S01:00000000:  22 6F 00 04
+F00:0009       	MOVEA.L	($8,SP),A0	; src
+               S01:00000004:  20 6F 00 08
+F00:0010       	MOVE.L	($c,SP),D0	; no of bytes
+               S01:00000008:  20 2F 00 0C
+F00:0011       .1	MOVE.B	(A0)+,(A1)+
+               S01:0000000C:  12 D8
+F00:0012       	SUBQ	#$1,D0
+               S01:0000000E:  53 40
+F00:0013       	BNE	.1
+               S01:00000010:  66 00 FF FA
+F00:0014       	RTS
+               S01:00000014:  4E 75
+F00:0015       
+F00:0016       ;u8 *memcpy(u8 *dest, const u8 *src, size_t count)
+F00:0017       ;{
+F00:0018       ;	for (u32 i=0; i<count; i++)
+F00:0019       ;		dest[i] = src[i];
+F00:0020       ;	return dest;
+F00:0021       ;}
+F00:0022       
+F00:0023       memset
+F00:0024       	MOVEA.L	($4,SP),A0	; destination
+               S01:00000016:  20 6F 00 04
+F00:0025       	MOVE.B	($8,SP),D0	; value
+               S01:0000001A:  10 2F 00 08
+F00:0026       	MOVE.L	($a,SP),D1	; no of bytes
+               S01:0000001E:  22 2F 00 0A
+F00:0027       .1	MOVE.B	D0,(A0)+
+               S01:00000022:  10 C0
+F00:0028       	SUBQ	#$1,D1
+               S01:00000024:  53 41
+F00:0029       	BNE	.1
+               S01:00000026:  66 00 FF FA
+F00:0030       	RTS
+               S01:0000002A:  4E 75
+F00:0031       
+F00:0032       ;u8 *memset(u8 *dest, u8 val, size_t count)
+F00:0033       ;{
+F00:0034       ;	for (u32 i=0; i<count; i++)
+F00:0035       ;		dest[i] = val;
+F00:0036       ;	return dest;
+F00:0037       ;}
+
+
+Sections:
+S01  TEXT
+
+
+Sources:
+F00  kernel.s
+
+
+Symbols:
+ memset .1 LAB (0x22) sec=TEXT 
+ memcpy .1 LAB (0xc) sec=TEXT 
+memset LAB (0x16) UNUSED EXPORT sec=TEXT 
+memcpy LAB (0x0) UNUSED EXPORT sec=TEXT 
+_MOVEMBYTES EXPR(0=0x0) INTERNAL 
+ MOVEMSIZE EXPR(0=0x0) INTERNAL 
+_MOVEMREGS EXPR(0=0x0) INTERNAL 
+__LINE__ EXPR(37=0x25) INTERNAL 
+__FO EXPR(0=0x0) INTERNAL 
+__RS EXPR(0=0x0) INTERNAL 
+REPTN EXPR(-1=0xffffffff) INTERNAL 
+__VASM EXPR(1=0x1) INTERNAL 
+__UNIXFS EXPR(0=0x0) INTERNAL 
+
+There have been no errors.

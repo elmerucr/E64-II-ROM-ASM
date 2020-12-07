@@ -1,0 +1,109 @@
+F00:0001       	GLOBAL  aa
+F00:0002       	GLOBAL	bb
+F00:0003       
+F00:0004       	SECTION BSS
+F00:0005       aa	DS.B	1
+F00:0006       	ALIGN	1
+F00:0007       bb	DS.W	1
+F00:0008       
+F00:0009       	SECTION	DATA
+F00:0010       onzin_info
+F00:0011       	DC.L    $deadbeef
+               S02:00000000:  DE AD BE EF
+F00:0012       	DC.L	$b000b1e5
+               S02:00000004:  B0 00 B1 E5
+F00:0013       
+F00:0014       	SECTION TEXT
+F00:0015       	DC.L	$00100000	; initial SSP
+               S03:00000000:  00 10 00 00
+F00:0016       	DC.L	init_kernel	; initial PC
+               S03:00000004:  00 00 00 08 [R]
+F00:0017       
+F00:0018       init_kernel
+F00:0019       	MOVE.W	#$2700,SR
+               S03:00000008:  46 FC 27 00
+F00:0020       	JSR	relocate_sections
+               S03:0000000C:  4E B9 00 00 00 1C [R]
+F00:0021       	JSR	update_vector_table
+               S03:00000012:  4E B9 00 00 00 64 [R]
+F00:0022       
+F00:0023       .1	BRA	.1
+               S03:00000018:  60 00 FF FE
+F00:0024       
+F00:0025       relocate_sections
+F00:0026       	; move data section
+F00:0027       	MOVE.L	#_DATA_END,D0
+               S03:0000001C:  20 3C 00 00 00 00 [R]
+F00:0028       	SUB.L	#_DATA_START,D0
+               S03:00000022:  90 BC 00 00 00 00 [R]
+F00:0029       	MOVE.L	D0,-(SP)	; push number of bytes
+               S03:00000028:  2F 00
+F00:0030       	PEA	_DATA_START	; push source address
+               S03:0000002A:  48 79 00 00 00 00 [R]
+F00:0031       	PEA	_RAM_START	; push destination address
+               S03:00000030:  48 79 00 00 00 00 [R]
+F00:0032       	JSR	memcpy
+               S03:00000036:  4E B9 00 00 00 00 [R]
+F00:0033       	LEA	($c,SP),SP	; cleanup stack
+               S03:0000003C:  4F EF 00 0C
+F00:0034       
+F00:0035       	; zero bss section
+F00:0036       	MOVE.L	#_BSS_END,D0
+               S03:00000040:  20 3C 00 00 00 00 [R]
+F00:0037       	SUB.L	#_BSS_START,D0
+               S03:00000046:  90 BC 00 00 00 00 [R]
+F00:0038       	MOVE.L	D0,-(SP)	; push number of bytes
+               S03:0000004C:  2F 00
+F00:0039       	MOVE.B	#$00,-(SP)	; push value
+               S03:0000004E:  1F 3C 00 00
+F00:0040       	PEA	_BSS_START
+               S03:00000052:  48 79 00 00 00 00 [R]
+F00:0041       	JSR	memset
+               S03:00000058:  4E B9 00 00 00 00 [R]
+F00:0042       	LEA	($a,SP),SP
+               S03:0000005E:  4F EF 00 0A
+F00:0043       
+F00:0044       	RTS
+               S03:00000062:  4E 75
+F00:0045       
+F00:0046       update_vector_table
+F00:0047       	RTS
+               S03:00000064:  4E 75
+
+
+Sections:
+S01  BSS
+S02  DATA
+S03  TEXT
+
+
+Sources:
+F00  init.s
+
+
+Symbols:
+memset IMP REF 
+_BSS_START IMP REF 
+_BSS_END IMP REF 
+memcpy IMP REF 
+_RAM_START IMP REF 
+_DATA_START IMP REF 
+_DATA_END IMP REF 
+ init_kernel .1 LAB (0x18) sec=TEXT 
+update_vector_table LAB (0x64) REF sec=TEXT 
+relocate_sections LAB (0x1c) REF sec=TEXT 
+init_kernel LAB (0x8) REF sec=TEXT 
+onzin_info LAB (0x0) UNUSED sec=DATA 
+bb LAB (0x2) UNUSED EXPORT sec=BSS 
+aa LAB (0x0) UNUSED EXPORT sec=BSS 
+_MOVEMBYTES EXPR(0=0x0) INTERNAL 
+ MOVEMSIZE EXPR(0=0x0) INTERNAL 
+_MOVEMREGS EXPR(0=0x0) INTERNAL 
+__LINE__ EXPR(47=0x2f) INTERNAL 
+__FO EXPR(0=0x0) INTERNAL 
+__RS EXPR(0=0x0) INTERNAL 
+REPTN EXPR(-1=0xffffffff) INTERNAL 
+__VASM EXPR(1=0x1) INTERNAL 
+__UNIXFS EXPR(0=0x0) INTERNAL 
+
+There have been no errors.
