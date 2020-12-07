@@ -1,10 +1,6 @@
-	GLOBAL	memcpy
-	GLOBAL	memset
-
-
 	SECTION	TEXT
 
-memcpy
+memcpy::
 	MOVEA.L	($4,SP),A1	; dest
 	MOVEA.L	($8,SP),A0	; src
 	MOVE.L	($c,SP),D0	; no of bytes
@@ -20,7 +16,7 @@ memcpy
 ;	return dest;
 ;}
 
-memset
+memset::
 	MOVEA.L	($4,SP),A0	; destination
 	MOVE.B	($8,SP),D0	; value
 	MOVE.L	($a,SP),D1	; no of bytes

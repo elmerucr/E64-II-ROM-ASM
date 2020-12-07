@@ -1,12 +1,12 @@
-F00:0001       	GLOBAL	vicv_base
+F00:0001       	SECTION	RODATA
 F00:0002       
-F00:0003       	SECTION	RODATA
-F00:0004       vicv_base
-F00:0005       	DC.L	$00fb0400
+F00:0003       vicv_base::
+F00:0004       	DC.L	$00fb0400
                S01:00000000:  00 FB 04 00
-F00:0006       
-F00:0007       	SECTION	TEXT
-F00:0008       vicv_interrupt_handler
+F00:0005       
+F00:0006       	SECTION	TEXT
+F00:0007       
+F00:0008       vicv_interrupt_handler::
 F00:0009       	RTE
                S02:00000000:  4E 73
 F00:0010       
@@ -22,7 +22,7 @@ F00  vicv.s
 
 
 Symbols:
-vicv_interrupt_handler LAB (0x0) UNUSED sec=TEXT 
+vicv_interrupt_handler LAB (0x0) UNUSED EXPORT sec=TEXT 
 vicv_base LAB (0x0) UNUSED EXPORT sec=RODATA 
 _MOVEMBYTES EXPR(0=0x0) INTERNAL 
  MOVEMSIZE EXPR(0=0x0) INTERNAL 

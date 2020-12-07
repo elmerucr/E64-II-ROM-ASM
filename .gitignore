@@ -1,1 +1,10 @@
+.DS_Store
+.vscode/
 build_script
+*.o
+*.list
+rom.bin
+rom.cpp
+rom.map
+rom_unpatched.bin
+mk_rom

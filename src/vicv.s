@@ -1,9 +1,9 @@
-	GLOBAL	vicv_base
-
 	SECTION	RODATA
-vicv_base
+
+vicv_base::
 	DC.L	$00fb0400
 
 	SECTION	TEXT
-vicv_interrupt_handler
+
+vicv_interrupt_handler::
 	RTE

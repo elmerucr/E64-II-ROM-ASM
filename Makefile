@@ -3,8 +3,14 @@ LD = vlink
 
 VPATH = src
 
-OBJECTS = obj/init.o obj/kernel.o obj/vicv.o
+# The init.o object must be first to ensure proper start of the executable code.
+OBJECTS = obj/init.o
 
+# Order of the rest of the objects doesn't matter.
+OBJECTS += obj/kernel.o obj/vicv.o
+
+# Sometimes there seems be strange behaviour related to the -align option. Now
+# it seems ok. Another way would be to use the -devpac option?
 ASFLAGS = -align -no-opt -Felf -m68000 -quiet
 LDFLAGS = -b rawbin1 -Trom.ld -Mrom.map
 
@@ -23,7 +29,7 @@ obj/%.o : %.s
 
 .PHONY: clean
 clean:
-	rm rom.bin rom_unpatched.bin rom.map rom.cpp $(OBJECTS)
+	rm mk_rom rom.bin rom_unpatched.bin rom.map rom.cpp $(OBJECTS)
 	cd obj && rm *.list && cd ..
 
 mk_rom: tools/mk_rom.c

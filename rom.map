@@ -29,7 +29,7 @@ Symbols of TEXT:
   0x00fc0064 update_vector_table: local reloc, size 0
   0x00fc0066 memcpy: global reloc, size 0
   0x00fc007c memset: global reloc, size 0
-  0x00fc0092 vicv_interrupt_handler: local reloc, size 0
+  0x00fc0092 vicv_interrupt_handler: global reloc, size 0
   0x00fc0094 vicv_base: global reloc, size 0
   0x00fc0098 _TEXT_END: global reloc, size 0
 
