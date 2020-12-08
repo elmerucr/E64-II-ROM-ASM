@@ -8,6 +8,12 @@ heap_end::	DS.L	1
 
 ; void *malloc(size_t chunk);
 malloc::
+	MOVE.L	($4,SP),D1	; load chunk size parameter from stack
+	BTST.L	#$0,D1		; test bit zero
+	BEQ	.1
+	ADDQ	#$1,D1		; add one for word alignment
+.1	MOVE.L	heap_end,D0	; return value in D0
+	ADD.L	D1,heap_end	; update heap pointer
 	RTS
 
 
@@ -15,10 +21,11 @@ memcpy::
 	MOVEA.L	($4,SP),A1	; dest
 	MOVEA.L	($8,SP),A0	; src
 	MOVE.L	($c,SP),D0	; no of bytes
+	BEQ	.2		; if no of bytes=0 then return
 .1	MOVE.B	(A0)+,(A1)+
 	SUBQ	#$1,D0
 	BNE	.1
-	RTS
+.2	RTS
 
 ;u8 *memcpy(u8 *dest, const u8 *src, size_t count)
 ;{

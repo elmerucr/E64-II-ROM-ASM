@@ -6,7 +6,9 @@ onzin_info
 	DC.L    $deadbeef
 	DC.L	$b00b1e22
 
+
 	SECTION TEXT
+
 	DC.L	$00100000	; initial SSP
 	DC.L	init_kernel	; initial PC
 
@@ -15,6 +17,13 @@ init_kernel
 	JSR	init_relocate_sections
 	JSR	init_update_vector_table
 	JSR	init_heap_pointers
+
+	MOVE.L	#$8000,-(SP)	; 32kb heap reservation for char ram
+	JSR	malloc
+	LEA	($4,SP),SP	; restore stack and D0 contains address
+	MOVE.L	D0,-(SP)	; move address of char ram onto stack
+	JSR	init_copy_char_rom_to_char_ram
+	LEA	($4,SP),SP	; restore stack
 
 	MOVE.B	#$10,VICV_HOR_BORDER_SIZE
 	MOVE.W	#C64_BLACK,VICV_HOR_BORDER_COLOR
@@ -53,26 +62,21 @@ init_heap_pointers
 	MOVE.L	#_BSS_END,heap_end
 	RTS
 
-; pseudo declaration:
-; void init_copy_...(u8 *rom, u8 *ram); ==> Need malloc to work
 init_copy_char_rom_to_char_ram
-	; Copy char rom to ram (go from 2k to 32k)
-	; Note: this is a very special copy routine
-	; that expands a charset from 1 bit into 16 bit
-	; format.
+	; Copy char rom to ram (go from 2k to 32k). Note: this is a very special
+	; copy routine that expands a charset from 1 bit into 16 bit format.
 	;
-	;	Register Usage
+	;	Scratch register Usage
 	;
 	;	D0	current_byte, holds a byte from the original rom charset
 	;	D1	i, counter from 7 to 0 (8 bits per byte have to be processed)
-	;	A0	*char_ram, pointer
-	;	A1	*char_rom, pointer
-	;
-	MOVEM.L	D0-D1/A0-A1,-(SP)
+	;	A0	must contain *char_ram pointer
+	;	A1	will contain *char_rom pointer
 
-	MOVEQ	#0,D0			;    current_byte = 0;
-	;LEA	CHAR_RAM,A0		;    char_ram = CHAR_RAM;
-	LEA	CHAR_ROM,A1		;    char_rom = CHAR_ROM;
+	MOVEQ	#0,D0			; current_byte = 0;
+
+	MOVEA.L	($4,SP),A0		; get char_ram pointer from stack
+	LEA	CHAR_ROM,A1
 
 .1	CMPA.L	#CHAR_ROM+$800,A1	;    while(char_ram != CHAR_ROM+$800)
 	BEQ	.5			;    {   //	branch to end of compound statement
@@ -86,8 +90,7 @@ init_copy_char_rom_to_char_ram
 .3	MOVE.W	#$0000,(A0)+		;    bit 7 not set, make empty
 .4	LSL.B	#$01,D0			;    move all the bits one place to the left
 	SUBQ	#$01,D1			;    i = i - 1;
-	BEQ	.1			;    did i reach zero? goto .1
+	BEQ	.1			;    did i reach zero? Then goto .1
 	BRA	.2
 					;    }
-.5	MOVEM.L	(SP)+,D0-D1/A0-A1
-	RTS
+.5	RTS
