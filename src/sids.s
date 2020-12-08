@@ -9,3 +9,6 @@ sids_reset::
 	JSR	memset
 	LEA	($a,SP),SP
 	RTS
+
+sids_welcome_sound::
+	RTS
