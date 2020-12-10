@@ -31,9 +31,19 @@ init_kernel
 	JSR	sids_reset
 	JSR	sids_welcome_sound
 
+	JSR	break
+
+	MOVE.L	#$00abcdef,-(SP)
+	MOVE.B	#$04,-(SP)
 	JSR	update_exception_vector
+	LEA	($6,SP),SP
+
+	JSR	break
 
 .1	BRA	.1
+
+break::
+	RTS
 
 init_relocate_sections
 	; move data section

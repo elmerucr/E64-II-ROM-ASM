@@ -51,7 +51,11 @@ memset::
 ;	return dest;
 ;}
 
-set_interrupt_priority_level::
+
+**************************************
+* void set_interrupt_mask(word mask) *
+**************************************
+set_interrupt_mask::
 	MOVE.W	($4,SP),D0	; get word value from stack
 	ANDI.W	#$7,D0		; between 0 and 7
 	LSL.W	#$8,D0		; leftshift 8 bits
@@ -61,21 +65,33 @@ set_interrupt_priority_level::
 	MOVE	D1,SR
 	RTS
 
-get_interrupt_priority_level::
+
+*****************************
+* word get_interrupt_mask() *
+*****************************
+get_interrupt_mask::
 	MOVE	SR,D0
 	ANDI.W	#$0700,D0
 	LSR.W	#$8,D0		; current priority is in D0 = return value
 	RTS
 
+
+*****************************************************************
+* void update_exception_vector(byte vectornumber, long address) *
+*****************************************************************
 update_exception_vector::
 	LINK	A6,#-$2		; local storage for current ipl
-	JSR	get_interrupt_priority_level
+	JSR	get_interrupt_mask
 	MOVE.W	D0,(-$2,A6)	; store it
-	MOVE.W	#$7,-(SP)
-	JSR	set_interrupt_priority_level
+	MOVE.W	#$7,-(SP)	; mask all incoming irq's
+	JSR	set_interrupt_mask
 	LEA	($2,SP),SP
-
-
-
+	CLR.L	D0
+	MOVE.B	($8,SP),D0
+	ADD.L	D0,D0
+	ADD.L	D0,D0		; times 4 to get address
+	MOVEA.L	D0,A0
+	MOVE.L	($a,SP),D0
+	MOVE.L	D0,(A0)
 	UNLK	A6
 	RTS
