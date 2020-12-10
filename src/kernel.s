@@ -50,3 +50,32 @@ memset::
 ;		dest[i] = val;
 ;	return dest;
 ;}
+
+set_interrupt_priority_level::
+	MOVE.W	($4,SP),D0	; get word value from stack
+	ANDI.W	#$7,D0		; between 0 and 7
+	LSL.W	#$8,D0		; leftshift 8 bits
+	MOVE	SR,D1		; get current status
+	ANDI.W	#$f8ff,D1
+	OR.W	D0,D1		; apply new level
+	MOVE	D1,SR
+	RTS
+
+get_interrupt_priority_level::
+	MOVE	SR,D0
+	ANDI.W	#$0700,D0
+	LSR.W	#$8,D0		; current priority is in D0 = return value
+	RTS
+
+update_exception_vector::
+	LINK	A6,#-$2		; local storage for current ipl
+	JSR	get_interrupt_priority_level
+	MOVE.W	D0,(-$2,A6)	; store it
+	MOVE.W	#$7,-(SP)
+	JSR	set_interrupt_priority_level
+	LEA	($2,SP),SP
+
+
+
+	UNLK	A6
+	RTS

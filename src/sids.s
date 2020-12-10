@@ -1,4 +1,4 @@
-	INCLUDE "definitions.inc"
+	INCLUDE "definitions.i"
 
 	SECTION	TEXT
 
