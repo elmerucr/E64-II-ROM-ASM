@@ -1,12 +1,5 @@
 	INCLUDE	"definitions.i"
 
-	SECTION	DATA
-
-onzin_info
-	DC.L    $deadbeef
-	DC.L	$b00b1e22
-
-
 	SECTION TEXT
 
 	DC.L	$00100000	; initial SSP
@@ -19,7 +12,7 @@ init_kernel
 	JSR	init_heap_pointers
 
 	MOVE.L	#$8000,-(SP)	; 32kb heap reservation for char ram
-	JSR	malloc		; D0 will contain address
+	JSR	malloc		; D0 contains address after call
 	LEA	($4,SP),SP	; restore stack
 	MOVE.L	D0,-(SP)	; move address of char ram onto stack
 	JSR	init_create_character_ram
@@ -28,13 +21,20 @@ init_kernel
 	MOVE.B	#$10,VICV_HOR_BORDER_SIZE
 	MOVE.W	#C64_BLACK,VICV_HOR_BORDER_COLOR
 
+	MOVE.W	#C64_BLUE,BLITTER_CLEAR_COLOR
+
+	MOVE.W	#$1,-(SP)
+	JSR	set_interrupt_mask
+	LEA	($2,SP),SP
+
 	JSR	sids_reset
 	JSR	sids_welcome_sound
 
 	JSR	break
 
-	MOVE.L	#$00abcdef,-(SP)
-	MOVE.B	#$04,-(SP)
+	; test update vector
+	MOVE.L	#$99abcdef,-(SP)
+	MOVE.B	#$ff,-(SP)
 	JSR	update_exception_vector
 	LEA	($6,SP),SP
 
@@ -67,6 +67,10 @@ init_relocate_sections
 	RTS
 
 init_update_vector_table
+	PEA	vicv_vblank_exception_handler
+	MOVE.B	#26,-(SP)
+	JSR	update_exception_vector
+	LEA	($6,SP),SP
 	RTS
 
 init_heap_pointers

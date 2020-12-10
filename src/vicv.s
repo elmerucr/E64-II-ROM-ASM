@@ -1,4 +1,10 @@
+	INCLUDE	"definitions.i"
+
 	SECTION	TEXT
 
-vicv_interrupt_handler::
+vicv_vblank_exception_handler::
+	MOVE.B	#$1,VICV_ISR
+	MOVE.B	#$1,VICV_BUFFERSWAP
+	MOVE.L	#$80000000,BLITTER_DATA
+	MOVE.B	#$1,BLITTER_CONTROL
 	RTE

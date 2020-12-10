@@ -80,18 +80,21 @@ get_interrupt_mask::
 * void update_exception_vector(byte vectornumber, long address) *
 *****************************************************************
 update_exception_vector::
-	LINK	A6,#-$2		; local storage for current ipl
+	LINK	A6,#-$2		; local storage for current imask
 	JSR	get_interrupt_mask
 	MOVE.W	D0,(-$2,A6)	; store it
 	MOVE.W	#$7,-(SP)	; mask all incoming irq's
 	JSR	set_interrupt_mask
 	LEA	($2,SP),SP
 	CLR.L	D0
-	MOVE.B	($8,SP),D0
+	MOVE.B	($8,A6),D0
 	ADD.L	D0,D0
 	ADD.L	D0,D0		; times 4 to get address
 	MOVEA.L	D0,A0
-	MOVE.L	($a,SP),D0
+	MOVE.L	($a,A6),D0
 	MOVE.L	D0,(A0)
+	MOVE.W	(-$2,A6),-(SP)	; load former value of imask
+	JSR	set_interrupt_mask
+	LEA	($2,SP),SP
 	UNLK	A6
 	RTS
