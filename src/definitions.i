@@ -45,3 +45,7 @@ C64_GREY		equ	$f777
 C64_LIGHTGREEN		equ	$fbfa
 C64_LIGHTBLUE		equ	$f67d
 C64_LIGHTGREY		equ	$faaa
+
+	INCLUDE	"blitter.i"
+	INCLUDE	"sids.i"
+	INCLUDE "tty.i"

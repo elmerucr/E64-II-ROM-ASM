@@ -1,6 +1,4 @@
 	INCLUDE "definitions.i"
-	INCLUDE "sids.i"
-
 
 	SECTION	TEXT
 

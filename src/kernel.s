@@ -2,6 +2,7 @@
 
 heap_start::	DS.L	1
 heap_end::	DS.L	1
+char_ram::	DS.L	1
 
 
 	SECTION	TEXT

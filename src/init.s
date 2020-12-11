@@ -14,14 +14,11 @@ init_kernel
 	MOVE.L	#$8000,-(SP)	; 32kb heap reservation for char ram
 	JSR	malloc		; D0 contains address after call
 	LEA	($4,SP),SP	; restore stack
-	MOVE.L	D0,-(SP)	; move address of char ram onto stack
+	MOVE.L	D0,char_ram
 	JSR	init_create_character_ram
-	LEA	($4,SP),SP	; restore stack
 
-	MOVE.B	#$10,VICV_HOR_BORDER_SIZE
-	MOVE.W	#C64_BLACK,VICV_HOR_BORDER_COLOR
-
-	MOVE.W	#C64_BLUE,BLITTER_CLEAR_COLOR
+	JSR	vicv_init
+	JSR	blitter_init
 
 	MOVE.W	#$1,-(SP)
 	JSR	set_interrupt_mask
@@ -30,20 +27,8 @@ init_kernel
 	JSR	sids_reset
 	JSR	sids_welcome_sound
 
-	JSR	break
-
-	; test update vector
-	MOVE.L	#$99abcdef,-(SP)
-	MOVE.B	#$ff,-(SP)
-	JSR	update_exception_vector
-	LEA	($6,SP),SP
-
-	JSR	break
-
 .1	BRA	.1
 
-break::
-	RTS
 
 init_relocate_sections
 	; move data section
@@ -86,7 +71,7 @@ init_create_character_ram
 	; A0 must contain *char_ram pointer
 	; A1 will contain *char_rom pointer
 	MOVEQ	#0,D0			; current_byte = 0;
-	MOVEA.L	($4,SP),A0		; get char_ram pointer from stack
+	MOVEA.L	char_ram,A0		; get char_ram pointer
 	LEA	CHAR_ROM,A1
 .1	CMPA.L	#CHAR_ROM+$800,A1	; end of rom?
 	BEQ	.5			; return if end of rom is reached
